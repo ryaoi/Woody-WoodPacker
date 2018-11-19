@@ -635,3 +635,52 @@ Disassembly of section .text:
 ```
 
 The project is done.
+
+
+Why not encrypt your woody?
+
+```
+root@debian-ryaoi:~/woody-woodpacker# ./woody_woodpacker /bin/ls
+key_value: 404142434445464748494A4B4C4D4E4F
+root@debian-ryaoi:~/woody-woodpacker# ./woody_woodpacker woody
+key_value: 404142434445464748494A4B4C4D4E4F
+root@debian-ryaoi:~/woody-woodpacker# ./woody_woodpacker woody
+key_value: 404142434445464748494A4B4C4D4E4F
+root@debian-ryaoi:~/woody-woodpacker# ./woody_woodpacker woody
+key_value: 404142434445464748494A4B4C4D4E4F
+root@debian-ryaoi:~/woody-woodpacker# ./woody_woodpacker woody
+key_value: 404142434445464748494A4B4C4D4E4F
+root@debian-ryaoi:~/woody-woodpacker# ./woody_woodpacker woody
+key_value: 404142434445464748494A4B4C4D4E4F
+root@debian-ryaoi:~/woody-woodpacker# ./woody_woodpacker woody
+key_value: 404142434445464748494A4B4C4D4E4F
+root@debian-ryaoi:~/woody-woodpacker# ./woody_woodpacker woody
+key_value: 404142434445464748494A4B4C4D4E4F
+root@debian-ryaoi:~/woody-woodpacker# ./woody_woodpacker woody
+key_value: 404142434445464748494A4B4C4D4E4F
+root@debian-ryaoi:~/woody-woodpacker# ./woody_woodpacker woody
+key_value: 404142434445464748494A4B4C4D4E4F
+root@debian-ryaoi:~/woody-woodpacker# ./woody_woodpacker woody
+key_value: 404142434445464748494A4B4C4D4E4F
+root@debian-ryaoi:~/woody-woodpacker# ./woody
+....WOODY.....
+....WOODY.....
+....WOODY.....
+....WOODY.....
+....WOODY.....
+....WOODY.....
+....WOODY.....
+....WOODY.....
+....WOODY.....
+....WOODY.....
+....WOODY.....
+a.out		obj_c				      rc4.o	 test.asm
+ft_memcpy.o	peda-session-a.out.txt		      small32	 test_files
+ft_memmove.o	peda-session-small32.txt	      src_asm	 test.o
+handle_elf64.o	peda-session-test.txt		      src_c	 test.sh
+less		peda-session-woody.txt		      test	 woodpacker.h
+main.o		peda-session-woody_woodpacker.txt     test1	 woody
+Makefile	peda-session-x86_64-linux-gnu-nm.txt  test1.asm  woody_woodpacker
+obj_asm		rc4.c				      test1.o
+root@debian-ryaoi:~/woody-woodpacker#
+```
