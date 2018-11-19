@@ -40,7 +40,7 @@ That's all.
 Let's talk about the exection flow.
 
 We will encrypt the text section so if we let our program execute, then it will probrably crash.
-We need to first execut de decoder then execute the normal execution.
+We need to first execute the decoder then execute the normal execution.
 But How?
 Well, elf header contain the entrypoint and entrypoint is a virtual address which the program should start.
 It is often at text section.
