@@ -1,5 +1,5 @@
 #ifndef WOODPACKER_H
-#define WOOD_PACHER_H
+#define WOODPACKER_H
 
 #include <elf.h>
 #include <errno.h>
