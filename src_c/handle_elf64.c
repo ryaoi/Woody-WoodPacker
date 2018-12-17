@@ -341,9 +341,11 @@ void			handle_elf64(void *mmap_ptr, size_t original_filesize)
 	shdr = (Elf64_Shdr *)((mmap_ptr + ehdr->e_shoff));
 	phdr = (Elf64_Phdr *)((mmap_ptr + ehdr->e_phoff));
 
+    /* Check if the filesize doesn't extend beyond sections */
 	if ((signed long)(original_filesize - ehdr->e_shoff) < (signed long)(ehdr->e_shnum * sizeof(Elf64_Shdr)) ||
 				(signed long)(original_filesize - ehdr->e_phoff) < (signed long)(ehdr->e_phnum * sizeof(Elf64_Shdr)))
 		munmap_and_handle_error(mmap_ptr, original_filesize, "Filesize does not match with number of section header.\n");
+
 
 	before_new_index = get_shdr_before_new_index(mmap_ptr, original_filesize);
 	if (before_new_index == -1)
@@ -358,6 +360,8 @@ void			handle_elf64(void *mmap_ptr, size_t original_filesize)
 	/* mapped_size + all sections hedaer + decode_stub + new Shdr */
 	size = filesize_mapped_all + (ehdr->e_shnum * sizeof(Elf64_Shdr)) + sizeof(decode_stub) + sizeof(Elf64_Shdr) + 0x40;
 
+    printf("original size: %zu\n", original_filesize);
+    printf("new size     : %zu\n", size);
 	if ((map = mmap(0, size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
 		print_default_error();
 	ft_memcpy(map, mmap_ptr, original_filesize);
@@ -377,7 +381,7 @@ void			handle_elf64(void *mmap_ptr, size_t original_filesize)
 	before_new_shdr = &shdr[before_new_index];
 	offset_old = before_new_shdr->sh_offset;
 
-	//handle of packed
+	/* CHeck if the binary is already packed */
 	packed = 0;
 	if (before_new_index + 1 < ehdr->e_shnum && (shdr[before_new_index + 1].sh_name) == 0)
 		packed = 1;
