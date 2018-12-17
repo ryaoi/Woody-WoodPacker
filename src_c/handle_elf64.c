@@ -239,10 +239,15 @@ int			get_shdr_before_new_index(void *map, size_t size)
 	Elf64_Shdr *sh_strtab = &shdr[ehdr->e_shstrndx];
  	const char *sh_strtab_p = map + sh_strtab->sh_offset;
 
- 	for (int i = 0; i < ehdr->e_shnum; i++)
+    /* Protect against too shstrndx */
+    if (((uint64_t)(map + size)) < (uint64_t)sh_strtab)
+        return (-1);
+    for (int i = 0; i < ehdr->e_shnum; i++)
 	{
-		if (ft_strcmp(sh_strtab_p + shdr[i].sh_name, ".bss") == 0)
-			return (i);
+        if ((uint64_t)map + size < (uint64_t)(sh_strtab_p + shdr[i].sh_name))
+            return (-1);
+        if (ft_strcmp(sh_strtab_p + shdr[i].sh_name, ".bss") == 0)
+            return (i);
   	}
  	for (int i = 0; i < ehdr->e_shnum; i++)
 	{
@@ -341,6 +346,9 @@ void			handle_elf64(void *mmap_ptr, size_t original_filesize)
 		munmap_and_handle_error(mmap_ptr, original_filesize, "Filesize does not match with number of section header.\n");
 
 	before_new_index = get_shdr_before_new_index(mmap_ptr, original_filesize);
+	if (before_new_index == -1)
+		munmap_and_handle_error(mmap_ptr, original_filesize, "The executable is malformed.\n");
+	    
 	bss_index = get_shdr_bss_index(mmap_ptr);
 	data_index = get_shdr_data_index(mmap_ptr);
 	/* calculate new size which contain bss section inside te file and align the filesize by 8 */
@@ -360,7 +368,6 @@ void			handle_elf64(void *mmap_ptr, size_t original_filesize)
 			print_default_error();
 		print_default_error();
 	}
-
 
 	ehdr = (Elf64_Ehdr *)map;
 	shdr = (Elf64_Shdr *)((map + ehdr->e_shoff));
@@ -412,7 +419,6 @@ void			handle_elf64(void *mmap_ptr, size_t original_filesize)
 		offset_old = offset;
 	}
 
-	// len = TOTAL - old_bss_offset + sizeof(ELF64_Shdr) which we just added
 	ft_memmove((void *)(map + (offset + sizeof(decode_stub))), (void *)(map + offset_old), (size_t)(original_filesize - offset_old + sizeof(Elf64_Shdr)));
 
 	if (packed == 0 && bss_index != 0)
