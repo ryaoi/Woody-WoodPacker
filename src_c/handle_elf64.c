@@ -241,18 +241,18 @@ int			get_shdr_before_new_index(void *map, size_t size)
 
  	for (int i = 0; i < ehdr->e_shnum; i++)
 	{
-		if (ft_strcmp(sh_strtab_p + shdr[i].sh_name,".bss") == 0)
+		if (ft_strcmp(sh_strtab_p + shdr[i].sh_name, ".bss") == 0)
 			return (i);
   	}
  	for (int i = 0; i < ehdr->e_shnum; i++)
 	{
-		if (ft_strcmp(sh_strtab_p + shdr[i].sh_name,".data") == 0)
+		if (ft_strcmp(sh_strtab_p + shdr[i].sh_name, ".data") == 0)
 			return (i);
   	}
 
  	for (int i = 0; i < ehdr->e_shnum; i++)
 	{
-		if (ft_strcmp(sh_strtab_p + shdr[i].sh_name,".text") == 0)
+		if (ft_strcmp(sh_strtab_p + shdr[i].sh_name, ".text") == 0)
 			return (i);
   	}
 	munmap_and_handle_error(map, size, "Sections are missing.\n");
@@ -336,8 +336,8 @@ void			handle_elf64(void *mmap_ptr, size_t original_filesize)
 	shdr = (Elf64_Shdr *)((mmap_ptr + ehdr->e_shoff));
 	phdr = (Elf64_Phdr *)((mmap_ptr + ehdr->e_phoff));
 
-	if ((original_filesize - ehdr->e_shoff) < ehdr->e_shnum * sizeof(Elf64_Shdr) ||
-		(original_filesize - ehdr->e_phoff) < ehdr->e_phnum * sizeof(Elf64_Shdr))
+	if ((signed long)(original_filesize - ehdr->e_shoff) < (signed long)(ehdr->e_shnum * sizeof(Elf64_Shdr)) ||
+				(signed long)(original_filesize - ehdr->e_phoff) < (signed long)(ehdr->e_phnum * sizeof(Elf64_Shdr)))
 		munmap_and_handle_error(mmap_ptr, original_filesize, "Filesize does not match with number of section header.\n");
 
 	before_new_index = get_shdr_before_new_index(mmap_ptr, original_filesize);
