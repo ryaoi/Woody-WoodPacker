@@ -1,6 +1,6 @@
 NAME 		= woody_woodpacker
 
-CFLAG		=  -Wall -Wextra -Werror -g
+CFLAG		=  -Wall -Wextra -Werror
 
 SRC_C		= main.c \
 		  ft_memmove.c \
@@ -29,7 +29,7 @@ $(OBJ_DIR_ASM)%.o : $(SRC_DIR_ASM)%.asm $(HEADER)
 
 $(OBJ_DIR_C)%.o : $(SRC_DIR_C)%.c $(HEADER)
 	@mkdir -p $(OBJ_DIR_C)
-	gcc -Wall -Wextra -Werror -c $< -o $@
+	gcc $(CFLAGS) -c $< -o $@
 
 all: $(NAME) 
 
