@@ -362,6 +362,8 @@ void			handle_elf64(void *mmap_ptr, size_t original_filesize)
 
     printf("original size: %zu\n", original_filesize);
     printf("new size     : %zu\n", size);
+    if (size < original_filesize)
+		munmap_and_handle_error(mmap_ptr, original_filesize, "The executable is malformed.\n");
 	if ((map = mmap(0, size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
 		print_default_error();
 	ft_memcpy(map, mmap_ptr, original_filesize);
