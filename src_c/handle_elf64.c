@@ -106,6 +106,7 @@ Elf64_Shdr		*add_new_section_header64(void *map, Elf64_Shdr *shdr, \
 			else
 				shdr->sh_offset = prev_shdr->sh_offset + prev_shdr->sh_size;
 		}
+
 		if (index != 0 && shdr->sh_addr == 0 && added == 0 && shdr->sh_name != 0)
 		{
 			/* shift the memory to create a new space for our section hedaer */
@@ -137,6 +138,20 @@ Elf64_Shdr		*add_new_section_header64(void *map, Elf64_Shdr *shdr, \
 			added = 1;
 			new_shdr = shdr;
 		}
+		/*
+		else if (shdr->sh_type == SHT_NOBITS)
+		{
+				prev_shdr--;
+				data_addr = prev_shdr->sh_addr;
+				data_offset = prev_shdr->sh_offset;
+				prev_shdr++;
+				// bss offset = data offset + (bss_addr - data_addr) if bss is not the end
+				prev_shdr->sh_offset = data_offset + (prev_shdr->sh_addr - data_addr);
+				shdr->sh_offset = prev_shdr->sh_offset + prev_shdr->sh_size;
+				shdr->sh_addr = prev_shdr->sh_addr + prev_shdr->sh_size;
+				shdr->sh_type = SHF_ALLOC | SHF_WRITE;
+		}
+    */
 		prev_shdr = shdr;
 		index++;
 		shdr++;
@@ -239,13 +254,19 @@ int			get_shdr_before_new_index(void *map, size_t size)
 	Elf64_Shdr *sh_strtab = &shdr[ehdr->e_shstrndx];
  	const char *sh_strtab_p = map + sh_strtab->sh_offset;
 
-    /* Protect against too shstrndx */
+    /* Protect against shstrndx which will decide the address of sh_strtab_p */
     if (((uint64_t)(map + size)) < (uint64_t)sh_strtab)
         return (-1);
-    for (int i = 0; i < ehdr->e_shnum; i++)
+ 	for (int i = 0; i < ehdr->e_shnum; i++)
 	{
         if ((uint64_t)map + size < (uint64_t)(sh_strtab_p + shdr[i].sh_name))
             return (-1);
+		if (ft_strcmp(sh_strtab_p + shdr[i].sh_name,"__libc_freeres_ptrs") == 0)
+			return (i);
+  	}
+
+    for (int i = 0; i < ehdr->e_shnum; i++)
+	{
         if (ft_strcmp(sh_strtab_p + shdr[i].sh_name, ".bss") == 0)
             return (i);
   	}
@@ -291,7 +312,14 @@ int			get_shdr_bss_index(void *map)
  	for (int i = 0; i < ehdr->e_shnum; i++)
 	{
 		if (ft_strcmp(sh_strtab_p + shdr[i].sh_name,".bss") == 0)
+		{
+		    if (ft_strcmp(sh_strtab_p + shdr[i+1].sh_name,"__libc_freeres_ptrs") == 0)
+		    {
+		        printf("index:%d\n", i+1);
+                return (i+1);
+            }
 			return (i);
+		}
   	}
 	return (0);
 
@@ -348,6 +376,7 @@ void			handle_elf64(void *mmap_ptr, size_t original_filesize)
 
 
 	before_new_index = get_shdr_before_new_index(mmap_ptr, original_filesize);
+	printf("before_new_index:%d\n", before_new_index);
 	if (before_new_index == -1)
 		munmap_and_handle_error(mmap_ptr, original_filesize, "The executable is malformed.\n");
 	    
@@ -360,6 +389,8 @@ void			handle_elf64(void *mmap_ptr, size_t original_filesize)
 	/* mapped_size + all sections hedaer + decode_stub + new Shdr */
 	size = filesize_mapped_all + (ehdr->e_shnum * sizeof(Elf64_Shdr)) + sizeof(decode_stub) + sizeof(Elf64_Shdr) + 0x40;
 
+    printf("original_filesize: %zu\n", original_filesize);
+    printf("new size         : %zu\n", size);
     if (size < original_filesize)
 		munmap_and_handle_error(mmap_ptr, original_filesize, "The executable is malformed.\n");
 	if ((map = mmap(0, size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
