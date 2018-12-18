@@ -95,7 +95,7 @@ Elf64_Shdr		*add_new_section_header64(void *map, Elf64_Shdr *shdr, \
 		/* if the section is added then we need to shift the sh_offset of other consecutive section after our section */
 		if (added)
 		{
-			// handle comment section alignement
+			/* Handle comment section alignement */
 			if (shdr->sh_type == SHT_PROGBITS && shdr->sh_flags == SHF_STRINGS + SHF_MERGE)
 				prev_comment_offset = shdr->sh_offset;
 			if (prev_comment_offset != 0 && !(shdr->sh_type == SHT_PROGBITS && shdr->sh_flags == SHF_STRINGS + SHF_MERGE))
@@ -360,8 +360,6 @@ void			handle_elf64(void *mmap_ptr, size_t original_filesize)
 	/* mapped_size + all sections hedaer + decode_stub + new Shdr */
 	size = filesize_mapped_all + (ehdr->e_shnum * sizeof(Elf64_Shdr)) + sizeof(decode_stub) + sizeof(Elf64_Shdr) + 0x40;
 
-    printf("original size: %zu\n", original_filesize);
-    printf("new size     : %zu\n", size);
     if (size < original_filesize)
 		munmap_and_handle_error(mmap_ptr, original_filesize, "The executable is malformed.\n");
 	if ((map = mmap(0, size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
