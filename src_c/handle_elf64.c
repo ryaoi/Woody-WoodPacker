@@ -95,10 +95,20 @@ Elf64_Shdr		*add_new_section_header64(void *map, Elf64_Shdr *shdr, \
 		/* if the section is added then we need to shift the sh_offset of other consecutive section after our section */
 		if (added)
 		{
+	    	if (shdr->sh_type == SHT_NOTE)
+	    	{
+	    	    prev_comment_offset = shdr->sh_offset;
+				shdr->sh_offset = prev_shdr->sh_offset + prev_shdr->sh_size;
+	    	}
+	    	else if (prev_comment_offset != 0 && prev_shdr->sh_type == SHT_NOTE)
+	    	{
+				shdr->sh_offset = prev_shdr->sh_offset + (shdr->sh_offset - prev_comment_offset);
+				prev_comment_offset = 0;
+	    	}
 			/* Handle comment section alignement */
-			if (shdr->sh_type == SHT_PROGBITS && shdr->sh_flags == SHF_STRINGS + SHF_MERGE)
+			else if (shdr->sh_type == SHT_PROGBITS && shdr->sh_flags == SHF_STRINGS + SHF_MERGE)
 				prev_comment_offset = shdr->sh_offset;
-			if (prev_comment_offset != 0 && !(shdr->sh_type == SHT_PROGBITS && shdr->sh_flags == SHF_STRINGS + SHF_MERGE))
+			else if (prev_comment_offset != 0 && !(shdr->sh_type == SHT_PROGBITS && shdr->sh_flags == SHF_STRINGS + SHF_MERGE))
 			{
 				shdr->sh_offset = prev_shdr->sh_offset + (shdr->sh_offset - prev_comment_offset);
 				prev_comment_offset = 0;
