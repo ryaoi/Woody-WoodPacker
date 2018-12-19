@@ -103,6 +103,8 @@ Elf64_Shdr		*add_new_section_header64(void *map, Elf64_Shdr *shdr, \
 				shdr->sh_offset = prev_shdr->sh_offset + (shdr->sh_offset - prev_comment_offset);
 				prev_comment_offset = 0;
 			}
+			else if (shdr->sh_type == SHT_PROGBITS && prev_shdr->sh_addralign != 1)
+				shdr->sh_offset = prev_shdr->sh_offset + align(prev_shdr->sh_size, shdr->sh_addralign);
 			else
 				shdr->sh_offset = prev_shdr->sh_offset + prev_shdr->sh_size;
 		}
@@ -138,20 +140,6 @@ Elf64_Shdr		*add_new_section_header64(void *map, Elf64_Shdr *shdr, \
 			added = 1;
 			new_shdr = shdr;
 		}
-		/*
-		else if (shdr->sh_type == SHT_NOBITS)
-		{
-				prev_shdr--;
-				data_addr = prev_shdr->sh_addr;
-				data_offset = prev_shdr->sh_offset;
-				prev_shdr++;
-				// bss offset = data offset + (bss_addr - data_addr) if bss is not the end
-				prev_shdr->sh_offset = data_offset + (prev_shdr->sh_addr - data_addr);
-				shdr->sh_offset = prev_shdr->sh_offset + prev_shdr->sh_size;
-				shdr->sh_addr = prev_shdr->sh_addr + prev_shdr->sh_size;
-				shdr->sh_type = SHF_ALLOC | SHF_WRITE;
-		}
-    */
 		prev_shdr = shdr;
 		index++;
 		shdr++;
@@ -257,8 +245,8 @@ int			get_shdr_before_new_index(void *map, size_t size)
     /* Protect against shstrndx which will decide the address of sh_strtab_p */
     if (((uint64_t)(map + size)) < (uint64_t)sh_strtab)
         return (-1);
- 	for (int i = 0; i < ehdr->e_shnum; i++)
-	{
+    for (int i = 0; i < ehdr->e_shnum; i++)
+    {
         if ((uint64_t)map + size < (uint64_t)(sh_strtab_p + shdr[i].sh_name))
             return (-1);
 		if (ft_strcmp(sh_strtab_p + shdr[i].sh_name,"__libc_freeres_ptrs") == 0)
