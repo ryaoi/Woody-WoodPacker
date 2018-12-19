@@ -30,9 +30,7 @@ static void	check_header(void *mmap_ptr, size_t filesize)
 			header->e_ident[1] == 'E' &&
 			header->e_ident[2] == 'L' &&
 			header->e_ident[3] == 'F') {
-		if (header->e_ident[EI_CLASS] == 1)
-			printf("32 bits!\n");
-		else if (header->e_ident[EI_CLASS] == 2)
+		if (header->e_ident[EI_CLASS] == 2)
 			handle_elf64(mmap_ptr, filesize);
 		else
 		{

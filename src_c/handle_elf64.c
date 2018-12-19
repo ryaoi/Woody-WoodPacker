@@ -314,10 +314,7 @@ int			get_shdr_bss_index(void *map)
 		if (ft_strcmp(sh_strtab_p + shdr[i].sh_name,".bss") == 0)
 		{
 		    if (ft_strcmp(sh_strtab_p + shdr[i+1].sh_name,"__libc_freeres_ptrs") == 0)
-		    {
-		        printf("index:%d\n", i+1);
                 return (i+1);
-            }
 			return (i);
 		}
   	}
@@ -376,7 +373,6 @@ void			handle_elf64(void *mmap_ptr, size_t original_filesize)
 
 
 	before_new_index = get_shdr_before_new_index(mmap_ptr, original_filesize);
-	printf("before_new_index:%d\n", before_new_index);
 	if (before_new_index == -1)
 		munmap_and_handle_error(mmap_ptr, original_filesize, "The executable is malformed.\n");
 	    
@@ -389,8 +385,6 @@ void			handle_elf64(void *mmap_ptr, size_t original_filesize)
 	/* mapped_size + all sections hedaer + decode_stub + new Shdr */
 	size = filesize_mapped_all + (ehdr->e_shnum * sizeof(Elf64_Shdr)) + sizeof(decode_stub) + sizeof(Elf64_Shdr) + 0x40;
 
-    printf("original_filesize: %zu\n", original_filesize);
-    printf("new size         : %zu\n", size);
     if (size < original_filesize)
 		munmap_and_handle_error(mmap_ptr, original_filesize, "The executable is malformed.\n");
 	if ((map = mmap(0, size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
