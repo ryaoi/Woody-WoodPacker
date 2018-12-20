@@ -108,9 +108,7 @@ Elf64_Shdr		*add_new_section_header64(void *map, Elf64_Shdr *shdr, \
 			/* Handle comment section alignement */
 			else if (shdr->sh_type == SHT_PROGBITS && shdr->sh_flags == SHF_STRINGS + SHF_MERGE)
 			{
-			    printf("got comment section!\n");
 				prev_comment_offset = shdr->sh_offset;
-			    printf("prev_comment_offset:%lx\n", prev_comment_offset);
 				shdr->sh_offset = prev_shdr->sh_offset + prev_shdr->sh_size;
 			}
 			//else if (prev_comment_offset != 0 && !(shdr->sh_type == SHT_PROGBITS && shdr->sh_flags == SHF_STRINGS + SHF_MERGE))
@@ -218,6 +216,8 @@ static uint64_t		calculate_filesize(Elf64_Shdr *shdr, Elf64_Phdr *phdr, uint64_t
 
 	total = 0;
 	load_offset = 0;
+	if (phdr->p_type != PT_PHDR && phnum == 7)
+	    return (0);
 	for (index = 0; index < phnum;index++)
 	{
 		if (phdr->p_type == PT_LOAD && phdr->p_offset != 0)
@@ -384,7 +384,7 @@ void			handle_elf64(void *mmap_ptr, size_t original_filesize)
 	data_index = get_shdr_data_index(mmap_ptr);
 	/* calculate new size which contain bss section inside te file and align the filesize by 8 */
 	if ((filesize_mapped_all = align(calculate_filesize(shdr, phdr, ehdr->e_shnum, ehdr->e_phnum, before_new_index), 8)) == 0)
-		munmap_and_handle_error(mmap_ptr, original_filesize, "comment section at the end.\n");
+		munmap_and_handle_error(mmap_ptr, original_filesize, "The executable is malformed.\n");
 
 	/* mapped_size + all sections hedaer + decode_stub + new Shdr */
 	size = filesize_mapped_all + (ehdr->e_shnum * sizeof(Elf64_Shdr)) + sizeof(decode_stub) + sizeof(Elf64_Shdr) + 0x40;
