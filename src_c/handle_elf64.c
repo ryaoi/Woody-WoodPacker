@@ -107,8 +107,14 @@ Elf64_Shdr		*add_new_section_header64(void *map, Elf64_Shdr *shdr, \
 	    	}
 			/* Handle comment section alignement */
 			else if (shdr->sh_type == SHT_PROGBITS && shdr->sh_flags == SHF_STRINGS + SHF_MERGE)
+			{
+			    printf("got comment section!\n");
 				prev_comment_offset = shdr->sh_offset;
-			else if (prev_comment_offset != 0 && !(shdr->sh_type == SHT_PROGBITS && shdr->sh_flags == SHF_STRINGS + SHF_MERGE))
+			    printf("prev_comment_offset:%lx\n", prev_comment_offset);
+				shdr->sh_offset = prev_shdr->sh_offset + prev_shdr->sh_size;
+			}
+			//else if (prev_comment_offset != 0 && !(shdr->sh_type == SHT_PROGBITS && shdr->sh_flags == SHF_STRINGS + SHF_MERGE))
+			else if (prev_comment_offset != 0 && prev_shdr->sh_flags == SHF_STRINGS + SHF_MERGE)
 			{
 				shdr->sh_offset = prev_shdr->sh_offset + (shdr->sh_offset - prev_comment_offset);
 				prev_comment_offset = 0;
