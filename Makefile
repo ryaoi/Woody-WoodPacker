@@ -1,6 +1,6 @@
 NAME 		= woody_woodpacker
 
-CFLAG		=  -Wall -Wextra -Werror
+CFLAGS	    =  -Wall -Wextra -Werror
 
 SRC_C		= main.c \
 		  ft_memmove.c \
